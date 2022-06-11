@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import StripeCheckout from 'react-stripe-checkout'
+import { loadStripe } from '@stripe/stripe-js';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
@@ -14,6 +16,8 @@ import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import { toast } from 'react-toastify';
+import '../form.css';
+import swal from 'sweetalert';
 
 function reducer(state, action) {
   switch (action.type) {
@@ -48,6 +52,9 @@ function reducer(state, action) {
       return state;
   }
 }
+const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY
+);
 export default function OrderScreen() {
   const { state } = useContext(Store);
   const { userInfo } = state;
@@ -104,6 +111,7 @@ export default function OrderScreen() {
         );
         dispatch({ type: 'PAY_SUCCESS', payload: data });
         toast.success('Order is paid');
+        setTimeout("location.href = 'http://localhost:3000/cart';",4000);
       } catch (err) {
         dispatch({ type: 'PAY_FAIL', payload: getError(err) });
         toast.error(getError(err));
@@ -112,6 +120,29 @@ export default function OrderScreen() {
   }
   function onError(err) {
     toast.error(getError(err));
+  }
+  function payStripe() {
+    var cardName = document.getElementById("cardName");
+    var cardNumber = document.getElementById("cardNumber");
+    var month = document.getElementById("month");
+    var cvc = document.getElementById("cvc");
+    var isPaid = document.getElementById("isPaid");
+    var payForm = document.getElementById("payForm");
+
+    if (cardName.value && cardNumber.value && month.value && cvc.value != ""){
+      payForm.reset();
+      toast.success('Order is paid');
+      setTimeout("location.href = 'http://localhost:3000/cart';",4000);
+    }else{
+      swal({
+        icon: "error",
+        text: "Please fill all inputs!",
+        value: true,
+        visible: true,
+        closeModal: true,
+        timer: 9000,
+      });
+    }
   }
 
   useEffect(() => {
@@ -227,7 +258,7 @@ export default function OrderScreen() {
               )}
             </Card.Body>
           </Card>
-          <Card className="mb-3">
+        {/*  <Card className="mb-3">
             <Card.Body>
               <Card.Title>Payment</Card.Title>
               <Card.Text>
@@ -241,7 +272,7 @@ export default function OrderScreen() {
                 <MessageBox variant="danger">Not Paid</MessageBox>
               )}
             </Card.Body>
-          </Card>
+          </Card>*/}
 
           <Card className="mb-3">
             <Card.Body>
@@ -307,12 +338,29 @@ export default function OrderScreen() {
                     {isPending ? (
                       <LoadingBox />
                     ) : (
-                      <div>
+                      <div id="isPaid">
                         <PayPalButtons
                           createOrder={createOrder}
                           onApprove={onApprove}
                           onError={onError}
                         ></PayPalButtons>
+                        <div class="stripeContainer">
+                        <p>Payment with Stripe</p>
+                        </div>
+                        <form id="payForm">
+                          <label for="cardName">Card Holder</label>
+                          <input class="cardInputs" required id="cardName" type="text" placeholder="ex. JOHN COZIMA"/>
+                          <label for="cardNumber">Credit card number</label>
+                          <input class="cardInputs" required id="cardNumber" type="text" maxlength="16"  placeholder="5555 5555 5555 4444"/>
+                          <label for="cardNumber">Security data</label>
+                          <div class="inp">
+                            <input required class="securityInp" id="month" type="text" placeholder="MM/YY"/>
+                            <input required class="securityInp" id="cvc" type="text" placeholder="CVC"/>
+                          </div>
+                          <div class="btnContainer">
+                            <button class="payBtn" type="button" onClick={payStripe}>Pay</button>
+                          </div>
+                        </form>
                       </div>
                     )}
                     {loadingPay && <LoadingBox></LoadingBox>}

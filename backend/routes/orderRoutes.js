@@ -4,13 +4,11 @@ import Order from '../models/orderModel.js';
 import User from '../models/userModel.js';
 import Product from '../models/productModel.js';
 import { isAuth, isAdmin, mailgun, payOrderEmailTemplate } from '../utils.js';
-
 const orderRouter = express.Router();
 
 orderRouter.get(
   '/',
-  isAuth,
-  isAdmin,
+  isAuth, isAdmin,
   expressAsyncHandler(async (req, res) => {
     const orders = await Order.find().populate('user', 'name');
     res.send(orders);
@@ -19,8 +17,7 @@ orderRouter.get(
 
 orderRouter.post(
   '/',
-  isAuth,
-  expressAsyncHandler(async (req, res) => {
+  isAuth,expressAsyncHandler(async (req, res) => {
     const newOrder = new Order({
       orderItems: req.body.orderItems.map((x) => ({ ...x, product: x._id })),
       shippingAddress: req.body.shippingAddress,
@@ -142,7 +139,7 @@ orderRouter.put(
         .messages()
         .send(
           {
-            from: 'Amazona <amazona@mg.yourdomain.com>',
+            from: 'Extreme <sandbox39d5a5333aae42caa58e8637a62cd601.mailgun.org>',
             to: `${order.user.name} <${order.user.email}>`,
             subject: `New order ${order._id}`,
             html: payOrderEmailTemplate(order),

@@ -15,7 +15,7 @@ main {
 .btn-primary,
 .btn-outline-primary {
   background-color: #000000;
-  color: #002aff;
+  color: #ffffff;
 }
 .products {
   display: flex;
@@ -24,7 +24,7 @@ main {
 }
 
 .rating span {
-  color: #002aff;
+  color: #ffd500;
 }
 
 .product {
@@ -126,3 +126,4 @@ main {
 button.thumbnail {
   padding: 0;
 }
+

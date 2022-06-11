@@ -74,7 +74,14 @@ export default function PlaceOrderScreen() {
       toast.error(getError(err));
     }
   };
-
+/*
+  useEffect(() => {
+    if (!cart.paymentMethodStripe) {
+      navigate('/payment');
+    }
+  }, [cart, navigate]);
+*/
+  //paypal
   useEffect(() => {
     if (!cart.paymentMethod) {
       navigate('/payment');
@@ -107,7 +114,7 @@ export default function PlaceOrderScreen() {
             <Card.Body>
               <Card.Title>Payment</Card.Title>
               <Card.Text>
-                <strong>Method:</strong> {cart.paymentMethod}
+                <strong>Method:</strong> {cart.paymentMethod }
               </Card.Text>
               <Link to="/payment">Edit</Link>
             </Card.Body>
